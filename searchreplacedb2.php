@@ -149,18 +149,21 @@ function icit_srdb_replacer( &$connection, $db = '', $search = '', $replace = ''
 					 );
 
 	if ( is_array( $tables ) && ! empty( $tables ) ) {
+
+		mysql_select_db( $db, $connection );
+
 		foreach( $tables as $table ) {
 			$report[ 'tables' ]++;
 
 			$columns = array( );
 
 			// Get a lit of columns in this table
-		    $fields = mysql_db_query( $db, 'DESCRIBE ' . $table, $connection );
+		    $fields = mysql_query( 'DESCRIBE ' . $table, $connection );
 			while( $column = mysql_fetch_array( $fields ) )
 				$columns[ $column[ 'Field' ] ] = $column[ 'Key' ] == 'PRI' ? true : false;
 
 			// Count the number of rows we have in the table if large we'll split into blocks, This is a mod from Simon Wheatley
-			$row_count = mysql_db_query( $db, 'SELECT COUNT(*) FROM ' . $table, $connection );
+			$row_count = mysql_query( 'SELECT COUNT(*) FROM ' . $table, $connection );
 			$rows_result = mysql_fetch_array( $row_count );
 			$row_count = $rows_result[ 0 ];
 			if ( $row_count == 0 )
@@ -175,7 +178,7 @@ function icit_srdb_replacer( &$connection, $db = '', $search = '', $replace = ''
 				$start = $page * $page_size;
 				$end = $start + $page_size;
 				// Grab the content of the table
-				$data = mysql_db_query( $db, sprintf( 'SELECT * FROM %s LIMIT %d, %d', $table, $start, $end ), $connection );
+				$data = mysql_query( sprintf( 'SELECT * FROM %s LIMIT %d, %d', $table, $start, $end ), $connection );
 
 				if ( ! $data )
 					$report[ 'errors' ][] = mysql_error( );
@@ -208,7 +211,7 @@ function icit_srdb_replacer( &$connection, $db = '', $search = '', $replace = ''
 
 					if ( $upd && ! empty( $where_sql ) ) {
 						$sql = 'UPDATE ' . $table . ' SET ' . implode( ', ', $update_sql ) . ' WHERE ' . implode( ' AND ', array_filter( $where_sql ) );
-						$result = mysql_db_query( $db, $sql, $connection );
+						$result = mysql_query( $sql, $connection );
 						if ( ! $result )
 							$report[ 'errors' ][] = mysql_error( );
 						else
@@ -303,7 +306,8 @@ if ( $step >= 3 ) {
 
 	// Do we have any tables and if so build the all tables array
 	$all_tables = array( );
-	$all_tables_mysql = mysql_db_query( $data, 'SHOW TABLES', $connection );
+	mysql_select_db( $data, $connection );
+	$all_tables_mysql = mysql_query( 'SHOW TABLES', $connection );
 	if ( ! $all_tables_mysql ) {
 		$errors[] = mysql_error( );
 		$step = 2;
