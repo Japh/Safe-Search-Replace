@@ -149,9 +149,6 @@ function icit_srdb_replacer( &$connection, $db = '', $search = '', $replace = ''
 					 );
 
 	if ( is_array( $tables ) && ! empty( $tables ) ) {
-
-		mysql_select_db( $db, $connection );
-
 		foreach( $tables as $table ) {
 			$report[ 'tables' ]++;
 
@@ -599,7 +596,7 @@ switch ( $step ) {
 		$time = array_sum( explode( ' ', $report[ 'end' ] ) ) - array_sum( explode( ' ', $report[ 'start' ] ) ); ?>
 
 		<h2>Completed</h2>
-		<p><?php printf( 'In the process of replacing <strong>"%s"</strong> with <strong>"%s"</strong> we scanned <strong>%d</strong> tables with a total of <strong>%d</strong> rows, <strong>%d</strong> cells were changed and <strong>%d</strong> db update performed and it all took <strong>%f</strong> seconds.', $srch, $rplc, $report[ 'tables' ], $report[ 'rows' ], $report[ 'change' ], $report[ 'updates' ], $time ); ?></p> <?php
+		<p><?php printf( 'In the process of replacing <strong>"%s"</strong> with <strong>"%s"</strong> we scanned <strong>%d</strong> tables with a total of <strong>%d</strong> rows, <strong>%d</strong> cells were changed and <strong>%d</strong> db update%s performed and it all took <strong>%f</strong> seconds.', $srch, $rplc, $report[ 'tables' ], $report[ 'rows' ], $report[ 'change' ], $report[ 'updates' ], ( $report[ 'updates' ] == 1 ? '' : 's' ), $time ); ?></p> <?php
 		break;
 
 
